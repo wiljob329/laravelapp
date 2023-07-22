@@ -10,7 +10,8 @@ body{
 }
 
 .header-bar {
-  background-color: #f9322c;
+  /*background-color: #f9322c;*/
+  background-color: #5e718b;
 }
 
 .container--narrow {

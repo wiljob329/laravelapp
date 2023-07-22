@@ -25,7 +25,7 @@ class UserController extends Controller
         auth()->logout();
         return redirect('/')->with('success', 'Saliste con exito!');
     }
-    
+
     public function showCorrectHomepage()
     {
         if (auth()->check()) {
@@ -37,19 +37,17 @@ class UserController extends Controller
     }
 
 
-    public function login(Request $request) 
+    public function login(Request $request)
     {
         $loginFields = $request->validate([
             'loginusername' => 'required',
             'loginpassword' => 'required'
         ]);
-        if (auth()->attempt(['username'=>$loginFields['loginusername'], 'password'=>$loginFields['loginpassword']]))
-        {
+        if (auth()->attempt(['username' => $loginFields['loginusername'], 'password' => $loginFields['loginpassword']])) {
             $request->session()->regenerate();
             return redirect('/')->with('success', 'LogIn con exito!');
-        } else
-        {
-            return redirect('/')->with('failure','Logeo Invalido');
+        } else {
+            return redirect('/')->with('failure', 'Logeo Invalido');
         }
     }
 
@@ -64,6 +62,6 @@ class UserController extends Controller
 
         $user = User::create($fields);
         auth()->login($user);
-        return redirect('/')->with('success','Cuenta creada con exito!');
+        return redirect('/')->with('success', 'Cuenta creada con exito!');
     }
 }
