@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Follow;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\View;
 use Illuminate\Validation\Rule;
 use Intervention\Image\Facades\Image;
 
@@ -45,13 +47,49 @@ class UserController extends Controller
     }
 
 
-    public function profile(User $user)
+    public function getShareData($user)
     {
-        return view('profile-posts', [
+        $currentFollowing = 0;
+
+        if (auth()->check()) {
+
+            $currentFollowing = Follow::where([['user_id', '=', auth()->user()->id], ['followeduser', '=', $user->id]])->count();
+        }
+
+        View::share("sharedData", [
+            'currentFollowing' => $currentFollowing,
             'avatar' => $user->avatar,
             'username' => $user->username,
-            'posts' => $user->posts()->latest()->get(),
-            'postCount' => $user->posts()->count()
+            'postCount' => $user->posts()->count(),
+            'followerCount' => $user->followers()->count(),
+            'followingCount' => $user->followingTheseUsers()->count()
+        ]);
+    }
+
+
+    public function profile(User $user)
+    {
+        $this->getShareData($user);
+        return view('profile-posts', [
+            'posts' => $user->posts()->latest()->get()
+        ]);
+    }
+
+    public function profileFollowers(User $user)
+    {
+        $this->getShareData($user);
+        //return $user->followers()->latest()->get();
+        return view('profile-followers', [
+            'followers' => $user->followers()->latest()->get(),
+        ]);
+    }
+
+
+    public function profileFollowing(User $user)
+    {
+        $this->getShareData($user);
+        return view('profile-following', [
+            'following' => $user->followingTheseUsers()->latest()->get(),
         ]);
     }
 
@@ -66,7 +104,9 @@ class UserController extends Controller
     public function showCorrectHomepage()
     {
         if (auth()->check()) {
-            return view('homepage-fade');
+            return view('homepage-feed', [
+                'posts' => auth()->user()->feedPosts()->latest()->get()
+            ]);
         } else {
             //return 'No estas logeado!!';
             return view('homepage');
